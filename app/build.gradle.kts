@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -22,10 +23,24 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val geminiApiKey = run {
+            val properties = Properties()
+            val localFile = rootProject.layout.projectDirectory.file("local.properties").asFile
+            if (localFile.exists()) {
+                localFile.inputStream().use { properties.load(it) }
+            }
+            properties.getProperty("GEMINI_API_KEY") ?: ""
+        }
+        val escapedGeminiKey = geminiApiKey
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"$escapedGeminiKey\"")
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -61,6 +76,10 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.google.genai)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
