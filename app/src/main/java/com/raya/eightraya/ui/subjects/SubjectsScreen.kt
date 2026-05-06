@@ -2,6 +2,7 @@ package com.raya.eightraya.ui.subjects
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raya.eightraya.ui.theme.RayaBackground
 import com.raya.eightraya.ui.theme.RayaBlue
@@ -58,8 +60,9 @@ import com.raya.eightraya.ui.theme.RayaTrack
 
 @Composable
 fun SubjectsRoute(
-    viewModel: SubjectsViewModel,
+    onSubjectClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SubjectsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -94,6 +97,7 @@ fun SubjectsRoute(
     ) { innerPadding ->
         SubjectsScreen(
             state = uiState,
+            onSubjectClick = onSubjectClick,
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -112,6 +116,7 @@ fun SubjectsRoute(
 @Composable
 fun SubjectsScreen(
     state: SubjectsUiState,
+    onSubjectClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -122,7 +127,10 @@ fun SubjectsScreen(
         when (state) {
             SubjectsUiState.Loading -> LoadingSubjects()
             is SubjectsUiState.Error -> ErrorSubjects(message = state.message)
-            is SubjectsUiState.Content -> SubjectsContent(state = state)
+            is SubjectsUiState.Content -> SubjectsContent(
+                state = state,
+                onSubjectClick = onSubjectClick,
+            )
         }
     }
 }
@@ -130,6 +138,7 @@ fun SubjectsScreen(
 @Composable
 private fun SubjectsContent(
     state: SubjectsUiState.Content,
+    onSubjectClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -152,7 +161,10 @@ private fun SubjectsContent(
                     items = state.subjects,
                     key = { it.id },
                 ) { subject ->
-                    SubjectCard(subject = subject)
+                    SubjectCard(
+                        subject = subject,
+                        onClick = { onSubjectClick(subject.id) },
+                    )
                 }
             }
         }
@@ -193,10 +205,13 @@ private fun SubjectsHeader(
 @Composable
 private fun SubjectCard(
     subject: SubjectCardUiState,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
