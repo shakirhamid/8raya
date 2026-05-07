@@ -1,7 +1,9 @@
 package com.raya.eightraya.di
 
+import com.raya.eightraya.data.repository.RoomDocumentRepository
 import com.raya.eightraya.data.repository.RoomProgressRepository
 import com.raya.eightraya.data.repository.RoomSubjectRepository
+import com.raya.eightraya.domain.repository.DocumentRepository
 import com.raya.eightraya.domain.repository.ProgressRepository
 import com.raya.eightraya.domain.repository.SubjectRepository
 import dagger.Binds
@@ -24,4 +26,10 @@ abstract class RepositoryModule {
     abstract fun bindProgressRepository(
         repository: RoomProgressRepository,
     ): ProgressRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDocumentRepository(
+        repository: RoomDocumentRepository,
+    ): DocumentRepository
 }
